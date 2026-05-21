@@ -1,0 +1,101 @@
+{
+  "name": "project-directory",
+  "displayName": "Project Directory",
+  "description": "A lightweight project directory that stores only name, rootPath, and tags.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:projectDirectory.projects",
+    "onCommand:projectDirectory.saveProject",
+    "onCommand:projectDirectory.openProjectsFile",
+    "onCommand:projectDirectory.openProjectInCurrentWindow",
+    "onCommand:projectDirectory.openProjectInNewWindow",
+    "onCommand:projectDirectory.refreshProjects"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "projectDirectory.saveProject",
+        "title": "Add Current Project",
+        "icon": "$(add)"
+      },
+      {
+        "command": "projectDirectory.openProjectsFile",
+        "title": "Edit Projects JSON",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "projectDirectory.openProjectInCurrentWindow",
+        "title": "Open in Current Window",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "projectDirectory.openProjectInNewWindow",
+        "title": "Open in New Window",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "projectDirectory.refreshProjects",
+        "title": "Refresh Projects",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "projectDirectory",
+          "title": "Project Directory",
+          "icon": "resources/project-directory.svg"
+        }
+      ]
+    },
+    "views": {
+      "projectDirectory": [
+        {
+          "id": "projectDirectory.projects",
+          "name": "Projects",
+          "icon": "resources/project-directory.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "projectDirectory.projects",
+        "contents": "No projects have been saved yet.\n[Add Current Project](command:projectDirectory.saveProject)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "projectDirectory.saveProject",
+          "when": "view == projectDirectory.projects && projectDirectory.hasWorkspaceFolder",
+          "group": "navigation"
+        },
+        {
+          "command": "projectDirectory.openProjectsFile",
+          "when": "view == projectDirectory.projects",
+          "group": "navigation"
+        },
+        {
+          "command": "projectDirectory.refreshProjects",
+          "when": "view == projectDirectory.projects",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "projectDirectory.openProjectInNewWindow",
+          "when": "view == projectDirectory.projects && viewItem == project",
+          "group": "inline@1"
+        }
+      ]
+    }
+  }
+}
