@@ -3,7 +3,16 @@
   "displayName": "Project Directory",
   "description": "A lightweight project directory that stores only name, rootPath, and tags.",
   "version": "0.0.1",
-  "publisher": "local",
+  "publisher": "starhoshi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/starhoshi/project-directory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/starhoshi/project-directory/issues"
+  },
+  "homepage": "https://github.com/starhoshi/project-directory#readme",
   "engines": {
     "vscode": "^1.74.0"
   },
