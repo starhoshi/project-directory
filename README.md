@@ -21,6 +21,7 @@ The extension also checks whether each `rootPath` exists on disk. If the directo
 - Store project metadata in a dedicated JSON file without writing to `settings.json`.
 - Expand `~` in project paths to the current user's home directory.
 - Mark projects whose `rootPath` directory does not exist.
+- Optionally hide projects whose `rootPath` directory does not exist.
 
 ## Usage
 
@@ -36,6 +37,21 @@ Saving an already registered `rootPath` updates the existing project instead of 
 
 If the configured directory no longer exists, the project remains in the list but is displayed with a warning icon. Opening that project shows a warning message instead of switching folders.
 
+Set `hideMissingDirectories` to `true` in the projects JSON file to hide projects whose `rootPath` directory does not exist. The default is `false`, so missing directories remain visible.
+
+```json
+{
+  "hideMissingDirectories": true,
+  "projects": [
+    {
+      "name": "Example Project",
+      "rootPath": "/path/to/example",
+      "tags": ["work", "typescript"]
+    }
+  ]
+}
+```
+
 ## Project Data
 
 Projects are stored in a dedicated JSON file:
@@ -44,19 +60,26 @@ Projects are stored in a dedicated JSON file:
 ~/.config/project-directory/projects.json
 ```
 
-The file contains an array of projects:
+The file contains the display option and an array of projects:
 
 ```json
-[
-  {
-    "name": "Example Project",
-    "rootPath": "/path/to/example",
-    "tags": ["work", "typescript"]
-  }
-]
+{
+  "hideMissingDirectories": false,
+  "projects": [
+    {
+      "name": "Example Project",
+      "rootPath": "/path/to/example",
+      "tags": ["work", "typescript"]
+    }
+  ]
+}
 ```
 
+Existing array-only files are automatically migrated to this object format. If `hideMissingDirectories` is missing, the extension adds it with `false`.
+
 This file is intended for manual editing and external sync tools such as Git, iCloud Drive, Dropbox, Syncthing, or any dotfiles setup. VS Code Settings Sync does not sync this file automatically.
+
+Because this file may contain local usernames and private project names in absolute paths, do not publish it. Use a private repository or another private sync method.
 
 ## Development
 

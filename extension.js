@@ -63,7 +63,7 @@ class ProjectProvider {
   }
 
   getChildren(element) {
-    const projects = getProjects(this.context);
+    const projects = getVisibleProjects(getProjects(this.context));
     if (element instanceof TagTreeItem) {
       return projects
         .filter(project => project.tags.includes(element.tag))
@@ -144,30 +144,46 @@ async function openProject(item, forceNewWindow, provider) {
 }
 
 function getProjects(context) {
-  return tryGetProjects() || [];
+  return getProjectData().projects;
+}
+
+function getProjectData() {
+  return tryGetProjectData() || createDefaultProjectData();
 }
 
 function tryGetProjects() {
+  const data = tryGetProjectData();
+  return data ? data.projects : undefined;
+}
+
+function tryGetProjectData() {
   try {
     if (!fs.existsSync(PROJECTS_FILE_PATH)) {
       lastReadErrorMessage = undefined;
-      return [];
+      return createDefaultProjectData();
     }
 
     const content = fs.readFileSync(PROJECTS_FILE_PATH, 'utf8').trim();
     if (!content) {
       lastReadErrorMessage = undefined;
-      return [];
+      const data = createDefaultProjectData();
+      writeProjectData(data);
+      return data;
     }
 
-    const projects = JSON.parse(content);
-    if (!Array.isArray(projects)) {
-      showReadErrorOnce(`Project Directory expected an array in ${PROJECTS_FILE_PATH}.`);
+    const parsed = JSON.parse(content);
+    const normalized = normalizeProjectData(parsed);
+    if (!normalized) {
+      showReadErrorOnce(`Project Directory expected an object with projects array in ${PROJECTS_FILE_PATH}.`);
       return undefined;
     }
 
+    if (normalized.shouldSave) {
+      writeProjectData(normalized.data);
+    }
+
     lastReadErrorMessage = undefined;
-    return projects.map(normalizeProject).sort((a, b) => a.name.localeCompare(b.name));
+    return normalized.data;
   } catch (error) {
     showReadErrorOnce(`Project Directory could not read ${PROJECTS_FILE_PATH}: ${error.message}`);
     return undefined;
@@ -184,8 +200,57 @@ function showReadErrorOnce(message) {
 }
 
 async function saveProjects(context, projects) {
+  const data = getProjectData();
+  writeProjectData({
+    ...data,
+    projects
+  });
+}
+
+function writeProjectData(data) {
   fs.mkdirSync(path.dirname(PROJECTS_FILE_PATH), { recursive: true });
-  fs.writeFileSync(PROJECTS_FILE_PATH, `${JSON.stringify(projects.map(normalizeProject), null, 2)}\n`, 'utf8');
+  fs.writeFileSync(PROJECTS_FILE_PATH, `${JSON.stringify(normalizeProjectDataForWrite(data), null, 2)}\n`, 'utf8');
+}
+
+function createDefaultProjectData() {
+  return {
+    hideMissingDirectories: false,
+    projects: []
+  };
+}
+
+function normalizeProjectData(value) {
+  if (Array.isArray(value)) {
+    return {
+      data: normalizeProjectDataForWrite({
+        hideMissingDirectories: false,
+        projects: value
+      }),
+      shouldSave: true
+    };
+  }
+
+  if (!value || typeof value !== 'object' || !Array.isArray(value.projects)) {
+    return undefined;
+  }
+
+  const hasHideMissingDirectories = Object.prototype.hasOwnProperty.call(value, 'hideMissingDirectories');
+  const hideMissingDirectories = hasHideMissingDirectories && value.hideMissingDirectories === true;
+
+  return {
+    data: normalizeProjectDataForWrite({
+      hideMissingDirectories,
+      projects: value.projects
+    }),
+    shouldSave: !hasHideMissingDirectories || typeof value.hideMissingDirectories !== 'boolean'
+  };
+}
+
+function normalizeProjectDataForWrite(data) {
+  return {
+    hideMissingDirectories: data.hideMissingDirectories === true,
+    projects: data.projects.map(normalizeProject).sort((a, b) => a.name.localeCompare(b.name))
+  };
 }
 
 function upsertProject(projects, project) {
@@ -196,6 +261,18 @@ function upsertProject(projects, project) {
   }
 
   return projects.map((existing, index) => index === existingIndex ? normalized : existing);
+}
+
+function getVisibleProjects(projects) {
+  if (!shouldHideMissingDirectories()) {
+    return projects;
+  }
+
+  return projects.filter(project => directoryExists(project.rootPath));
+}
+
+function shouldHideMissingDirectories() {
+  return getProjectData().hideMissingDirectories;
 }
 
 function getRootItems(projects) {
@@ -268,7 +345,9 @@ function currentWorkspaceProjectDefaults(context) {
 async function openProjectsFile(focusProject) {
   fs.mkdirSync(path.dirname(PROJECTS_FILE_PATH), { recursive: true });
   if (!fs.existsSync(PROJECTS_FILE_PATH)) {
-    fs.writeFileSync(PROJECTS_FILE_PATH, '[]\n', 'utf8');
+    writeProjectData(createDefaultProjectData());
+  } else {
+    tryGetProjectData();
   }
 
   const document = await vscode.workspace.openTextDocument(vscode.Uri.file(PROJECTS_FILE_PATH));

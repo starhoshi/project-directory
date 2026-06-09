@@ -2,8 +2,9 @@
   "name": "project-directory",
   "displayName": "Project Directory",
   "description": "A lightweight project directory that stores only name, rootPath, and tags.",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "publisher": "starhoshi",
+  "icon": "resources/marketplace-icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
