@@ -1,6 +1,20 @@
-# Project Directory
+<p align="center">
+  <img src="https://starhoshi.gallerycdn.vsassets.io/extensions/starhoshi/project-directory/0.0.4/1780979352474/Microsoft.VisualStudio.Services.Icons.Default" width="128" height="128" alt="Project Directory icon">
+</p>
 
-Project Directory is a lightweight Visual Studio Code extension for keeping a small list of project directories in the Activity Bar.
+<h1 align="center">Project Directory</h1>
+
+<p align="center">
+  A lightweight Visual Studio Code extension for keeping your projects close at hand.
+</p>
+
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=starhoshi.project-directory"><img src="https://img.shields.io/visual-studio-marketplace/v/starhoshi.project-directory?style=flat-square&amp;label=Marketplace" alt="Visual Studio Marketplace version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=starhoshi.project-directory"><img src="https://img.shields.io/visual-studio-marketplace/i/starhoshi.project-directory?style=flat-square" alt="Visual Studio Marketplace installs"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10B981?style=flat-square" alt="MIT License"></a>
+</p>
+
+## Overview
 
 Each project stores only three fields:
 
@@ -9,6 +23,14 @@ Each project stores only three fields:
 - `tags`
 
 The extension also checks whether each `rootPath` exists on disk. If the directory is missing, the project is shown with a warning icon and a `missing path` label.
+
+## Install
+
+Install [Project Directory from the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=starhoshi.project-directory), or run:
+
+```shell
+code --install-extension starhoshi.project-directory
+```
 
 ## Features
 
